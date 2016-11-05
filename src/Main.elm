@@ -28,7 +28,11 @@ type alias Model =
     { pageName : String }
 
 
-init : Result String String -> ( Model, Cmd Msg )
+type alias Route =
+    Result String String
+
+
+init : Route -> ( Model, Cmd Msg )
 init result =
     urlUpdate result { pageName = "home" }
 
@@ -57,7 +61,7 @@ toUrl pageName =
     "#/" ++ pageName
 
 
-fromUrl : String -> Result String String
+fromUrl : String -> Route
 fromUrl url =
     let
         urlList =
@@ -68,17 +72,21 @@ fromUrl url =
                 |> drop 1
                 |> take 1
                 |> List.head
-                |> Maybe.withDefault "home"
     in
-        Ok pageName
+        case pageName of
+            Just a ->
+                Ok a
+
+            Nothing ->
+                Err "bad route"
 
 
-urlParser : Navigation.Parser (Result String String)
+urlParser : Navigation.Parser Route
 urlParser =
     Navigation.makeParser (fromUrl << .hash)
 
 
-urlUpdate : Result String String -> Model -> ( Model, Cmd Msg )
+urlUpdate : Route -> Model -> ( Model, Cmd Msg )
 urlUpdate result model =
     case result of
         Ok pageName ->
