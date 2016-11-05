@@ -92,7 +92,7 @@ fromUrl : String -> Route
 fromUrl url =
     let
         urlList =
-            Debug.log "URL: " (String.split "/" url)
+            String.split "/" url
 
         routeElements =
             urlList
@@ -122,23 +122,23 @@ urlUpdate route model =
 -- View
 
 
-homePage : Model -> Html Msg
-homePage model =
+homePage : Html Msg
+homePage =
     text "home"
 
 
-aboutPage : Model -> Html Msg
-aboutPage model =
+aboutPage : Html Msg
+aboutPage =
     text "about"
 
 
-notFoundPage : Model -> Html Msg
-notFoundPage model =
+notFoundPage : Html Msg
+notFoundPage =
     text "404 error"
 
 
-usersPage : Model -> Html Msg
-usersPage model =
+usersPage : List User -> Html Msg
+usersPage users =
     ul []
         (List.map
             (\user ->
@@ -148,41 +148,44 @@ usersPage model =
                         [ text user.name ]
                     ]
             )
-            model.users
+            users
         )
 
 
-userFromId : Model -> String -> Maybe User
-userFromId model idStr =
+userFromId : List User -> String -> Maybe User
+userFromId users idStr =
     let
         id =
             Result.withDefault 0 (String.toInt idStr)
     in
-        List.filter (\user -> id == user.id) model.users |> head
+        List.filter (\user -> id == user.id) users
+            |> head
 
 
-userPage : Model -> String -> Html Msg
-userPage model idStr =
+userPage : List User -> String -> Html Msg
+userPage users idStr =
     let
         user =
-            userFromId model idStr
+            userFromId users idStr
     in
         case user of
             Just u ->
                 div []
                     [ text ("Details for user: ")
-                    , a [ href ("/#/users/" ++ idStr ++ "/hobbies") ] [ text u.name ]
+                    , a
+                        [ href ("/#/users/" ++ idStr ++ "/hobbies") ]
+                        [ text u.name ]
                     ]
 
             Nothing ->
                 text "user not found"
 
 
-hobbiesPage : Model -> String -> Html Msg
-hobbiesPage model idStr =
+hobbiesPage : List User -> String -> Html Msg
+hobbiesPage users idStr =
     let
         user =
-            userFromId model idStr
+            userFromId users idStr
     in
         case user of
             Just u ->
@@ -195,28 +198,27 @@ hobbiesPage model idStr =
 
 pageBody : Model -> Html Msg
 pageBody model =
-    let
-        routeString =
-            head model.currentRoute |> Maybe.withDefault "home"
-    in
-        case model.currentRoute of
-            [ "home" ] ->
-                homePage model
+    case model.currentRoute of
+        [] ->
+            homePage
 
-            [ "about" ] ->
-                aboutPage model
+        [ "home" ] ->
+            homePage
 
-            [ "users" ] ->
-                usersPage model
+        [ "about" ] ->
+            aboutPage
 
-            [ "users", userId ] ->
-                userPage model userId
+        [ "users" ] ->
+            usersPage model.users
 
-            [ "users", userId, "hobbies" ] ->
-                hobbiesPage model userId
+        [ "users", userId ] ->
+            userPage model.users userId
 
-            _ ->
-                notFoundPage model
+        [ "users", userId, "hobbies" ] ->
+            hobbiesPage model.users userId
+
+        _ ->
+            notFoundPage
 
 
 menuStyle : Html.Attribute Msg
