@@ -3,6 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
+import List exposing (..)
 import Navigation
 import Utils
 import String
@@ -58,7 +59,18 @@ toUrl pageName =
 
 fromUrl : String -> Result String String
 fromUrl url =
-    Ok (String.dropLeft 2 url)
+    let
+        urlList =
+            Debug.log "URL: " (String.split "/" url)
+
+        pageName =
+            urlList
+                |> drop 1
+                |> take 1
+                |> List.head
+                |> Maybe.withDefault "home"
+    in
+        Ok pageName
 
 
 urlParser : Navigation.Parser (Result String String)
@@ -96,6 +108,9 @@ pageBody model =
 
         "about" ->
             text "about"
+
+        "users" ->
+            text "users"
 
         _ ->
             text "404 error"
