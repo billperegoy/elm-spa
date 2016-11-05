@@ -25,16 +25,32 @@ main =
 
 
 type alias Model =
-    { pageName : String }
+    { pageName : String
+    , users : List User
+    }
+
+
+type alias User =
+    { id : Int
+    , name : String
+    }
 
 
 type alias Route =
     Result String String
 
 
+initialUsers : List User
+initialUsers =
+    [ User 1 "Fred", User 2 "Joe", User 3 "Mark" ]
+
+
 init : Route -> ( Model, Cmd Msg )
 init route =
-    urlUpdate route { pageName = "home" }
+    urlUpdate route
+        { pageName = "home"
+        , users = initialUsers
+        }
 
 
 
@@ -90,7 +106,7 @@ urlUpdate : Route -> Model -> ( Model, Cmd Msg )
 urlUpdate route model =
     case route of
         Ok pageName ->
-            { pageName = pageName }
+            { model | pageName = pageName }
                 ! []
 
         Err _ ->
@@ -102,26 +118,53 @@ urlUpdate route model =
 -- View
 
 
+homePage : Model -> Html Msg
+homePage model =
+    text "home"
+
+
+aboutPage : Model -> Html Msg
+aboutPage model =
+    text "about"
+
+
+notFoundPage : Model -> Html Msg
+notFoundPage model =
+    text "404 error"
+
+
+userPage : Model -> Html Msg
+userPage model =
+    ul []
+        (List.map
+            (\user ->
+                li []
+                    [ a
+                        [ href ("/#/users/" ++ toString user.id) ]
+                        [ text user.name ]
+                    ]
+            )
+            model.users
+        )
+
+
 pageBody : Model -> Html Msg
 pageBody model =
     case model.pageName of
         "" ->
-            text "home"
+            homePage model
 
         "home" ->
-            text "home"
-
-        "blog" ->
-            text "blog"
+            homePage model
 
         "about" ->
-            text "about"
+            aboutPage model
 
         "users" ->
-            text "users"
+            userPage model
 
         _ ->
-            text "404 error"
+            notFoundPage model
 
 
 menuStyle : Html.Attribute Msg
@@ -145,7 +188,7 @@ view model =
         [ ul [ menuStyle ]
             [ li [ menuElementStyle ] [ link "home" "#/home" ]
             , li [ menuElementStyle ] [ link "about" "#/about" ]
-            , li [ menuElementStyle ] [ link "blog" "#/blog" ]
+            , li [ menuElementStyle ] [ link "users" "#/users" ]
             ]
         , pageBody model
         ]
