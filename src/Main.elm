@@ -33,8 +33,8 @@ type alias Route =
 
 
 init : Route -> ( Model, Cmd Msg )
-init result =
-    urlUpdate result { pageName = "home" }
+init route =
+    urlUpdate route { pageName = "home" }
 
 
 
@@ -87,8 +87,8 @@ urlParser =
 
 
 urlUpdate : Route -> Model -> ( Model, Cmd Msg )
-urlUpdate result model =
-    case result of
+urlUpdate route model =
+    case route of
         Ok pageName ->
             { pageName = pageName }
                 ! []
