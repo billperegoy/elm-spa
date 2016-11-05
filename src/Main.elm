@@ -85,6 +85,9 @@ urlUpdate result model =
 pageBody : Model -> Html Msg
 pageBody model =
     case model.pageName of
+        "" ->
+            text "home"
+
         "home" ->
             text "home"
 
@@ -98,8 +101,13 @@ pageBody model =
             text "404 error"
 
 
-inlineListStyle : Html.Attribute Msg
-inlineListStyle =
+menuStyle : Html.Attribute Msg
+menuStyle =
+    style [ ( "list-style-type", "none" ) ]
+
+
+menuElementStyle : Html.Attribute Msg
+menuElementStyle =
     style [ ( "display", "inline" ), ( "margin-left", "10px" ) ]
 
 
@@ -111,10 +119,10 @@ link name url =
 view : Model -> Html Msg
 view model =
     div []
-        [ ul [ style [ ( "list-style-type", "none" ) ] ]
-            [ li [ inlineListStyle ] [ link "home" "#/home" ]
-            , li [ inlineListStyle ] [ link "about" "#/about" ]
-            , li [ inlineListStyle ] [ link "blog" "#/blog" ]
+        [ ul [ menuStyle ]
+            [ li [ menuElementStyle ] [ link "home" "#/home" ]
+            , li [ menuElementStyle ] [ link "about" "#/about" ]
+            , li [ menuElementStyle ] [ link "blog" "#/blog" ]
             ]
         , pageBody model
         ]
