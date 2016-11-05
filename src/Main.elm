@@ -5,7 +5,6 @@ import Html.App as Html
 import Html.Attributes exposing (..)
 import List exposing (..)
 import Navigation
-import Utils
 import String
 
 
@@ -33,7 +32,12 @@ type alias Model =
 type alias User =
     { id : Int
     , name : String
+    , hobbies : List Hobby
     }
+
+
+type alias Hobby =
+    String
 
 
 type alias RoutePath =
@@ -46,7 +50,10 @@ type alias Route =
 
 initialUsers : List User
 initialUsers =
-    [ User 1 "Fred", User 2 "Joe", User 3 "Mark" ]
+    [ User 1 "Fred" [ "running", "climbing" ]
+    , User 2 "Joe" [ "kayaking", "poodle gromming", "goat soccer" ]
+    , User 3 "Mark" [ "knitting", "kombucha making" ]
+    ]
 
 
 init : Route -> ( Model, Cmd Msg )
@@ -145,18 +152,42 @@ usersPage model =
         )
 
 
-userPage : Model -> String -> Html Msg
-userPage model idStr =
+userFromId : Model -> String -> Maybe User
+userFromId model idStr =
     let
         id =
             Result.withDefault 0 (String.toInt idStr)
+    in
+        List.filter (\user -> id == user.id) model.users |> head
 
+
+userPage : Model -> String -> Html Msg
+userPage model idStr =
+    let
         user =
-            List.filter (\user -> id == user.id) model.users |> head
+            userFromId model idStr
     in
         case user of
             Just u ->
-                text ("Details for user: " ++ u.name)
+                div []
+                    [ text ("Details for user: ")
+                    , a [ href ("/#/users/" ++ idStr ++ "/hobbies") ] [ text u.name ]
+                    ]
+
+            Nothing ->
+                text "user not found"
+
+
+hobbiesPage : Model -> String -> Html Msg
+hobbiesPage model idStr =
+    let
+        user =
+            userFromId model idStr
+    in
+        case user of
+            Just u ->
+                ul []
+                    (List.map (\hobby -> li [] [ text hobby ]) u.hobbies)
 
             Nothing ->
                 text "user not found"
@@ -180,6 +211,9 @@ pageBody model =
 
             [ "users", userId ] ->
                 userPage model userId
+
+            [ "users", userId, "hobbies" ] ->
+                hobbiesPage model userId
 
             _ ->
                 notFoundPage model
