@@ -137,8 +137,8 @@ notFoundPage =
     text "404 error"
 
 
-usersPage : List User -> Html Msg
-usersPage users =
+usersPage : Model -> Html Msg
+usersPage model =
     ul []
         (List.map
             (\user ->
@@ -148,7 +148,7 @@ usersPage users =
                         [ text user.name ]
                     ]
             )
-            users
+            model.users
         )
 
 
@@ -162,11 +162,11 @@ userFromId users idStr =
             |> head
 
 
-userPage : List User -> String -> Html Msg
-userPage users idStr =
+userPage : Model -> String -> Html Msg
+userPage model idStr =
     let
         user =
-            userFromId users idStr
+            userFromId model.users idStr
     in
         case user of
             Just u ->
@@ -181,11 +181,11 @@ userPage users idStr =
                 text "user not found"
 
 
-hobbiesPage : List User -> String -> Html Msg
-hobbiesPage users idStr =
+hobbiesPage : Model -> String -> Html Msg
+hobbiesPage model idStr =
     let
         user =
-            userFromId users idStr
+            userFromId model.users idStr
     in
         case user of
             Just u ->
@@ -209,13 +209,13 @@ pageBody model =
             aboutPage
 
         [ "users" ] ->
-            usersPage model.users
+            usersPage model
 
         [ "users", userId ] ->
-            userPage model.users userId
+            userPage model userId
 
         [ "users", userId, "hobbies" ] ->
-            hobbiesPage model.users userId
+            hobbiesPage model userId
 
         _ ->
             notFoundPage
