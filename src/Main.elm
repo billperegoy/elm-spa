@@ -25,7 +25,7 @@ main =
 
 
 type alias Model =
-    { pageName : String
+    { currentRoute : RoutePath
     , users : List User
     }
 
@@ -36,8 +36,12 @@ type alias User =
     }
 
 
+type alias RoutePath =
+    List String
+
+
 type alias Route =
-    Result String String
+    Result String RoutePath
 
 
 initialUsers : List User
@@ -48,7 +52,7 @@ initialUsers =
 init : Route -> ( Model, Cmd Msg )
 init route =
     urlUpdate route
-        { pageName = "home"
+        { currentRoute = [ "home" ]
         , users = initialUsers
         }
 
@@ -72,9 +76,9 @@ update msg model =
 -- Navigation
 
 
-toUrl : String -> String
-toUrl pageName =
-    "#/" ++ pageName
+toUrl : RoutePath -> String
+toUrl currentRoute =
+    "#/" ++ (String.join "/" currentRoute)
 
 
 fromUrl : String -> Route
@@ -83,18 +87,11 @@ fromUrl url =
         urlList =
             Debug.log "URL: " (String.split "/" url)
 
-        pageName =
+        routeElements =
             urlList
                 |> drop 1
-                |> take 1
-                |> List.head
     in
-        case pageName of
-            Just a ->
-                Ok a
-
-            Nothing ->
-                Err "bad route"
+        Ok routeElements
 
 
 urlParser : Navigation.Parser Route
@@ -105,13 +102,13 @@ urlParser =
 urlUpdate : Route -> Model -> ( Model, Cmd Msg )
 urlUpdate route model =
     case route of
-        Ok pageName ->
-            { model | pageName = pageName }
+        Ok routeElements ->
+            { model | currentRoute = routeElements }
                 ! []
 
         Err _ ->
             model
-                ! [ Navigation.modifyUrl (toUrl model.pageName) ]
+                ! [ Navigation.modifyUrl (toUrl model.currentRoute) ]
 
 
 
@@ -133,8 +130,8 @@ notFoundPage model =
     text "404 error"
 
 
-userPage : Model -> Html Msg
-userPage model =
+usersPage : Model -> Html Msg
+usersPage model =
     ul []
         (List.map
             (\user ->
@@ -148,23 +145,44 @@ userPage model =
         )
 
 
+userPage : Model -> String -> Html Msg
+userPage model idStr =
+    let
+        id =
+            Result.withDefault 0 (String.toInt idStr)
+
+        user =
+            List.filter (\user -> id == user.id) model.users |> head
+    in
+        case user of
+            Just u ->
+                text ("Details for user: " ++ u.name)
+
+            Nothing ->
+                text "user not found"
+
+
 pageBody : Model -> Html Msg
 pageBody model =
-    case model.pageName of
-        "" ->
-            homePage model
+    let
+        routeString =
+            head model.currentRoute |> Maybe.withDefault "home"
+    in
+        case model.currentRoute of
+            [ "home" ] ->
+                homePage model
 
-        "home" ->
-            homePage model
+            [ "about" ] ->
+                aboutPage model
 
-        "about" ->
-            aboutPage model
+            [ "users" ] ->
+                usersPage model
 
-        "users" ->
-            userPage model
+            [ "users", userId ] ->
+                userPage model userId
 
-        _ ->
-            notFoundPage model
+            _ ->
+                notFoundPage model
 
 
 menuStyle : Html.Attribute Msg
