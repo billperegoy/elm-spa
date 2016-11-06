@@ -91,11 +91,9 @@ toUrl currentRoute =
 fromUrl : String -> Route
 fromUrl url =
     let
-        urlList =
-            String.split "/" url
-
         routeElements =
-            urlList
+            url
+                |> String.split "/"
                 |> drop 1
     in
         Ok routeElements
@@ -122,36 +120,6 @@ urlUpdate route model =
 -- View
 
 
-homePage : Html Msg
-homePage =
-    text "home"
-
-
-aboutPage : Html Msg
-aboutPage =
-    text "about"
-
-
-notFoundPage : Html Msg
-notFoundPage =
-    text "404 error"
-
-
-usersPage : Model -> Html Msg
-usersPage model =
-    ul []
-        (List.map
-            (\user ->
-                li []
-                    [ a
-                        [ href ("/#/users/" ++ toString user.id) ]
-                        [ text user.name ]
-                    ]
-            )
-            model.users
-        )
-
-
 userFromId : List User -> String -> Maybe User
 userFromId users idStr =
     let
@@ -160,6 +128,39 @@ userFromId users idStr =
     in
         List.filter (\user -> id == user.id) users
             |> head
+
+
+homePage : Html Msg
+homePage =
+    h1 [] [ text "Home" ]
+
+
+aboutPage : Html Msg
+aboutPage =
+    h1 [] [ text "About" ]
+
+
+notFoundPage : Html Msg
+notFoundPage =
+    h1 [] [ text "Page Not Found" ]
+
+
+usersPage : Model -> Html Msg
+usersPage model =
+    div []
+        [ h1 [] [ text "Users" ]
+        , ul []
+            (List.map
+                (\user ->
+                    li []
+                        [ a
+                            [ href ("/#/users/" ++ toString user.id) ]
+                            [ text user.name ]
+                        ]
+                )
+                model.users
+            )
+        ]
 
 
 userPage : Model -> String -> Html Msg
@@ -171,14 +172,18 @@ userPage model idStr =
         case user of
             Just u ->
                 div []
-                    [ text ("Details for user: ")
-                    , a
-                        [ href ("/#/users/" ++ idStr ++ "/hobbies") ]
-                        [ text u.name ]
+                    [ h1 [] [ text ("User Profile") ]
+                    , h2 []
+                        [ a
+                            [ href ("/#/users/" ++ idStr ++ "/hobbies") ]
+                            [ text u.name ]
+                        ]
                     ]
 
             Nothing ->
-                text "user not found"
+                div []
+                    [ h1 [] [ text "User not found" ]
+                    ]
 
 
 hobbiesPage : Model -> String -> Html Msg
@@ -189,8 +194,11 @@ hobbiesPage model idStr =
     in
         case user of
             Just u ->
-                ul []
-                    (List.map (\hobby -> li [] [ text hobby ]) u.hobbies)
+                div []
+                    [ h1 [] [ text "User Hobbies" ]
+                    , ul []
+                        (List.map (\hobby -> li [] [ text hobby ]) u.hobbies)
+                    ]
 
             Nothing ->
                 text "user not found"
@@ -238,7 +246,7 @@ link name url =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ style [ ( "margin", "20px" ) ] ]
         [ ul [ menuStyle ]
             [ li [ menuElementStyle ] [ link "home" "#/home" ]
             , li [ menuElementStyle ] [ link "about" "#/about" ]
