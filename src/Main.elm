@@ -1,7 +1,6 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.App as Html
 import Html.Attributes exposing (..)
 import List exposing (..)
 import Navigation
@@ -51,7 +50,7 @@ type alias Route =
 initialUsers : List User
 initialUsers =
     [ User 1 "Fred" [ "running", "climbing" ]
-    , User 2 "Joe" [ "kayaking", "poodle gromming", "goat soccer" ]
+    , User 2 "Joe" [ "kayaking", "poodle grooming", "goat soccer" ]
     , User 3 "Mark" [ "knitting", "kombucha making" ]
     ]
 

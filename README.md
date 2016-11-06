@@ -1,10 +1,7 @@
-# Elm Quickstart
-This is a repository that can be cloned or copied in order to start a new basic
-Elm application. It sets up the following:
+# Elm Single Page Web App
 
-* Basic HTML application with model, update, view and subscriptions.
-* Small utility module used to demonstrate testing.
-* npm setup to run build or tests.
+This repository implements a basic single page web app using the Elm Navigation
+package.
 
 To use this repository, you should follow these steps.
 
@@ -12,13 +9,9 @@ To use this repository, you should follow these steps.
 
 2. npm install -g elm-live
 
-3. npm install -g elm-test
+3. npm install
 
-4. npm install
-
-5. npm run test
-
-6. npm run watch
+4. npm run watch
 
 The *watch* step will run the elm-live build process and launch the browser.
 Future code changes will automatically trigger a rebuild and the browser will
