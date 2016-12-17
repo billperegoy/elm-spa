@@ -7,13 +7,12 @@ import Navigation
 import String
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
-    Navigation.program urlParser
+    Navigation.program UrlChange
         { init = init
         , view = view
         , update = update
-        , urlUpdate = urlUpdate
         , subscriptions = subscriptions
         }
 
@@ -23,7 +22,7 @@ main =
 
 
 type alias Model =
-    { currentRoute : RoutePath
+    { currentRoute : Navigation.Location
     , users : List User
     }
 
@@ -55,12 +54,12 @@ initialUsers =
     ]
 
 
-init : Route -> ( Model, Cmd Msg )
-init route =
-    urlUpdate route
-        { currentRoute = [ "home" ]
-        , users = initialUsers
-        }
+init : Navigation.Location -> ( Model, Cmd Msg )
+init location =
+    { currentRoute = location
+    , users = initialUsers
+    }
+        ! []
 
 
 
@@ -68,23 +67,18 @@ init route =
 
 
 type Msg
-    = NoOp
+    = UrlChange Navigation.Location
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoOp ->
-            model ! []
+        UrlChange location ->
+            { model | currentRoute = location } ! []
 
 
 
 -- Navigation
-
-
-toUrl : RoutePath -> String
-toUrl currentRoute =
-    "#/" ++ (String.join "/" currentRoute)
 
 
 fromUrl : String -> Route
@@ -96,23 +90,6 @@ fromUrl url =
                 |> drop 1
     in
         Ok routeElements
-
-
-urlParser : Navigation.Parser Route
-urlParser =
-    Navigation.makeParser (fromUrl << .hash)
-
-
-urlUpdate : Route -> Model -> ( Model, Cmd Msg )
-urlUpdate route model =
-    case route of
-        Ok routeElements ->
-            { model | currentRoute = routeElements }
-                ! []
-
-        Err _ ->
-            model
-                ! [ Navigation.modifyUrl (toUrl model.currentRoute) ]
 
 
 
@@ -205,27 +182,31 @@ hobbiesPage model idStr =
 
 pageBody : Model -> Html Msg
 pageBody model =
-    case model.currentRoute of
-        [] ->
-            homePage
+    let
+        routePath =
+            fromUrl model.currentRoute.hash |> Result.withDefault []
+    in
+        case routePath of
+            [] ->
+                homePage
 
-        [ "home" ] ->
-            homePage
+            [ "home" ] ->
+                homePage
 
-        [ "about" ] ->
-            aboutPage
+            [ "about" ] ->
+                aboutPage
 
-        [ "users" ] ->
-            usersPage model
+            [ "users" ] ->
+                usersPage model
 
-        [ "users", userId ] ->
-            userPage model userId
+            [ "users", userId ] ->
+                userPage model userId
 
-        [ "users", userId, "hobbies" ] ->
-            hobbiesPage model userId
+            [ "users", userId, "hobbies" ] ->
+                hobbiesPage model userId
 
-        _ ->
-            notFoundPage
+            _ ->
+                notFoundPage
 
 
 menuStyle : Html.Attribute Msg
