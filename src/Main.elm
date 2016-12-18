@@ -42,10 +42,6 @@ type alias RoutePath =
     List String
 
 
-type alias Route =
-    Result String RoutePath
-
-
 initialUsers : List User
 initialUsers =
     [ User 1 "Fred" [ "running", "climbing" ]
@@ -81,15 +77,9 @@ update msg model =
 -- Navigation
 
 
-fromUrl : String -> Route
-fromUrl url =
-    let
-        routeElements =
-            url
-                |> String.split "/"
-                |> drop 1
-    in
-        Ok routeElements
+fromUrlHash : String -> RoutePath
+fromUrlHash urlHash =
+    urlHash |> String.split "/" |> drop 1
 
 
 
@@ -184,7 +174,7 @@ pageBody : Model -> Html Msg
 pageBody model =
     let
         routePath =
-            fromUrl model.currentRoute.hash |> Result.withDefault []
+            fromUrlHash model.currentRoute.hash
     in
         case routePath of
             [] ->
