@@ -118,11 +118,7 @@ usersPage model =
         , ul []
             (List.map
                 (\user ->
-                    li []
-                        [ a
-                            [ href ("/#/users/" ++ toString user.id) ]
-                            [ text user.name ]
-                        ]
+                    li [] [ link user.name ("/#/users/" ++ toString user.id) ]
                 )
                 model.users
             )
@@ -140,10 +136,7 @@ userPage model idStr =
                 div []
                     [ h1 [] [ text ("User Profile") ]
                     , h2 []
-                        [ a
-                            [ href ("/#/users/" ++ idStr ++ "/hobbies") ]
-                            [ text u.name ]
-                        ]
+                        [ link u.name ("/#/users/" ++ idStr ++ "/hobbies") ]
                     ]
 
             Nothing ->
