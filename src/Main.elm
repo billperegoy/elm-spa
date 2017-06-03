@@ -38,8 +38,14 @@ type alias Hobby =
     String
 
 
-type alias RoutePath =
-    List String
+type RoutePath
+    = DefaultRoute
+    | HomeRoute
+    | AboutRoute
+    | UsersRoute
+    | UserRoute String
+    | HobbiesRoute String
+    | NotFoundRoute
 
 
 initialUsers : List User
@@ -79,7 +85,31 @@ update msg model =
 
 fromUrlHash : String -> RoutePath
 fromUrlHash urlHash =
-    urlHash |> String.split "/" |> drop 1
+    let
+        hashList =
+            urlHash |> String.split "/" |> drop 1
+    in
+        case hashList of
+            [] ->
+                DefaultRoute
+
+            [ "home" ] ->
+                HomeRoute
+
+            [ "about" ] ->
+                AboutRoute
+
+            [ "users" ] ->
+                UsersRoute
+
+            [ "users", userId ] ->
+                UserRoute userId
+
+            [ "users", userId, "hobbies" ] ->
+                HobbiesRoute userId
+
+            _ ->
+                NotFoundRoute
 
 
 
@@ -170,25 +200,25 @@ pageBody model =
             fromUrlHash model.currentRoute.hash
     in
         case routePath of
-            [] ->
+            DefaultRoute ->
                 homePage
 
-            [ "home" ] ->
+            HomeRoute ->
                 homePage
 
-            [ "about" ] ->
+            AboutRoute ->
                 aboutPage
 
-            [ "users" ] ->
+            UsersRoute ->
                 usersPage model
 
-            [ "users", userId ] ->
+            UserRoute userId ->
                 userPage model userId
 
-            [ "users", userId, "hobbies" ] ->
+            HobbiesRoute userId ->
                 hobbiesPage model userId
 
-            _ ->
+            NotFoundRoute ->
                 notFoundPage
 
 
