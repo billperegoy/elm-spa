@@ -222,29 +222,31 @@ pageBody model =
                 notFoundPage
 
 
-menuStyle : Html.Attribute Msg
-menuStyle =
-    style [ ( "list-style-type", "none" ) ]
-
-
-menuElementStyle : Html.Attribute Msg
-menuElementStyle =
-    style [ ( "display", "inline" ), ( "margin-left", "10px" ) ]
-
-
 link : String -> String -> Html Msg
 link name url =
     a [ href url ] [ text name ]
 
 
-view : Model -> Html Msg
-view model =
-    div [ style [ ( "margin", "20px" ) ] ]
-        [ ul [ menuStyle ]
+header : Html Msg
+header =
+    let
+        menuStyle =
+            style [ ( "list-style-type", "none" ) ]
+
+        menuElementStyle =
+            style [ ( "display", "inline" ), ( "margin-left", "10px" ) ]
+    in
+        ul [ menuStyle ]
             [ li [ menuElementStyle ] [ link "home" "#/home" ]
             , li [ menuElementStyle ] [ link "about" "#/about" ]
             , li [ menuElementStyle ] [ link "users" "#/users" ]
             ]
+
+
+view : Model -> Html Msg
+view model =
+    div [ style [ ( "margin", "20px" ) ] ]
+        [ header
         , pageBody model
         ]
 
